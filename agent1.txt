@@ -1,1 +1,165 @@
+
 "live in iran"
+import csv
+import datetime
+from website import Website
+from mobile_app import MobileApp
+
+class AssetPortfolio:
+    def __init__(self, filename="digital_assets.csv"):
+        self.__assets = []
+        self.__filename = filename
+
+    def add_asset(self, asset):
+        self.__assets.append(asset)
+
+    def calculate_total_net_worth(self):
+        total = 0
+        for asset in self.__assets:
+            total += asset.calculate_value() - asset.cost
+        return round(total, 2)
+
+    def save_portfolio(self):
+        with open(self.__filename, 'w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Type", "Name", "Date", "Cost", "Extra1", "Extra2", "CurrentValue"])
+            for asset in self.__assets:
+                line = asset.to_report_line().split(',')
+                writer.writerow(line)
+        print(f"Portfolio saved to {self.__filename}")
+
+    def load_portfolio(self):
+        self.__assets = []
+        try:
+            with open(self.__filename, 'r', encoding='utf-8') as file:
+                reader = csv.reader(file)
+                next(reader)  # דילוג על שורת הכותרת
+                for row in reader:
+                    if not row:
+                        continue
+                    asset_type = row[0]
+                    name = row[1]
+                    reg_date = datetime.date.fromisoformat(row[2])
+                    cost = float(row[3])
+
+                    if asset_type == "WEBSITE":
+                        monthly_traffic = int(row[4])
+                        monetization_rate = float(row[5])
+                        asset = Website(name, reg_date, cost, monthly_traffic, monetization_rate)
+
+                    elif asset_type == "MOBILE_APP":
+                        downloads = int(row[4])
+                        avg_rating = float(row[5])
+                        asset = MobileApp(name, reg_date, cost, downloads, avg_rating)
+
+                    else:
+                        continue
+
+                    self.add_asset(asset)
+            print(f"Portfolio loaded from {self.__filename}")
+
+        except FileNotFoundError:
+            print(f"No existing portfolio file found. Starting with an empty one.")
+import csv
+import datetime
+from website import Website
+from mobile_app import MobileApp
+
+class AssetPortfolio:
+    def __init__(self, filename="digital_assets.csv"):
+        self.__assets = []
+        self.__filename = filename
+
+    def add_asset(self, asset):
+        self.__assets.append(asset)
+
+    def calculate_total_net_worth(self):
+        total = 0
+        for asset in self.__assets:
+            total += asset.calculate_value() - asset.cost
+        return round(total, 2)
+
+    def save_portfolio(self):
+        with open(self.__filename, 'w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Type", "Name", "Date", "Cost", "Extra1", "Extra2", "CurrentValue"])
+            for asset in self.__assets:
+                line = asset.to_report_line().split(',')
+                writer.writerow(line)
+        print(f"Portfolio saved to {self.__filename}")
+
+    def load_portfolio(self):
+        self.__assets = []
+        try:
+            with open(self.__filename, 'r', encoding='utf-8') as file:
+                reader = csv.reader(file)
+                next(reader)  # דילוג על שורת הכותרת
+                for row in reader:
+                    if not row:
+                        continue
+                    asset_type = row[0]
+                    name = row[1]
+                    reg_date = datetime.date.fromisoformat(row[2])
+                    cost = float(row[3])
+
+                    if asset_type == "WEBSITE":
+                        monthly_traffic = int(row[4])
+                        monetization_rate = float(row[5])
+                        asset = Website(name, reg_date, cost, monthly_traffic, monetization_rate)
+
+                    elif asset_type == "MOBILE_APP":
+                        downloads = int(row[4])
+                        avg_rating = float(row[5])
+                        asset = MobileApp(name, reg_date, cost, downloads, avg_rating)
+
+                    else:
+                        continue
+
+                    self.add_asset(asset)
+            print(f"Portfolio loaded from {self.__filename}")
+
+        except FileNotFoundError:
+            print(f"No existing portfolio file found. Starting with an empty one.")
+import datetime
+from website import Website
+from mobile_app import MobileApp
+from portfolio import AssetPortfolio
+
+if __name__ == "__main__":
+    # יצירת פורטפוליו
+    my_portfolio = AssetPortfolio()
+    my_portfolio.load_portfolio()
+
+    # יצירת נכסים
+    site = Website(
+        name="TechWorld",
+        registration_date=datetime.date(2022, 5, 20),
+        cost=3000.0,
+        monthly_traffic=15000,
+        monetization_rate=0.05
+    )
+
+    app = MobileApp(
+        name="FitTrack",
+        registration_date=datetime.date(2023, 8, 10),
+        cost=8000.0,
+        downloads=20000,
+        avg_rating=4.7
+    )
+
+    # הוספה לפורטפוליו
+    my_portfolio.add_asset(site)
+    my_portfolio.add_asset(app)
+
+    # חישוב שווי כולל
+    print("\n=== Portfolio Net Worth ===")
+    print(f"Total Net Worth: {my_portfolio.calculate_total_net_worth()} ₪")
+
+    # שמירה
+    my_portfolio.save_portfolio()
+
+    # טעינה מחדש לבדיקה
+    print("\n=== Reloading Portfolio ===")
+    reloaded = AssetPortfolio()
+    reloaded.load_portfolio()
+    print(f"Reloaded Net Worth: {reloaded.calculate_total_net_worth()} ₪")
